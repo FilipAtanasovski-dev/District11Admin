@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <!-- ================================================= -->
+    <!-- SIDEBAR -->
+    <!-- ================================================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <h2>Restaurant</h2>
+
+            <span>
+                Administration
+            </span>
+
+        </div>
+
+
+        <nav>
+
+            <a
+                href="#"
+                class="nav-item active"
+                onclick="showSection('reservations', this); return false;"
+            >
+                <span>📅</span>
+                Reservations
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                onclick="showSection('tables', this); return false;"
+            >
+                <span>🪑</span>
+                Tables
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                onclick="showSection('newsletter', this); return false;"
+            >
+                <span>✉️</span>
+                Newsletter
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="mode-indicator admin-mode">
+
+                <span class="status-dot"></span>
+
+                Admin Mode
+
+            </div>
+
+
+            <button
+                class="logout"
+                onclick="logout()"
+            >
+                ← Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================================================= -->
+    <!-- MAIN -->
+    <!-- ================================================= -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+
+                <h1 id="page-title">
+                    Reservations
+                </h1>
+
+                <p id="page-description">
+                    Manage restaurant reservations.
+                </p>
+
+            </div>
+
+
+            <div
+                class="current-date"
+                id="current-date"
+            ></div>
+
+        </header>
+
+
+        <!-- ================================================= -->
+        <!-- RESERVATIONS -->
+        <!-- ================================================= -->
+
+        <section
+            id="reservations"
+            class="section active"
+        >
+
+            <div class="stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📅
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Today's Reservations
+                        </span>
+
+                        <strong id="reservation-count">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Today's Guests
+                        </span>
+
+                        <strong id="guest-count">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📧
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Newsletter Subscribers
+                        </span>
+
+                        <strong id="subscriber-count">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Reservations
+                        </h2>
+
+                        <p>
+                            Manage restaurant bookings.
+                        </p>
+
+                    </div>
+
+
+                    <div class="filters">
+
+                        <input
+                            type="date"
+                            id="reservation-date"
+                            onchange="loadReservations()"
+                        >
+
+
+                        <select
+                            id="reservation-status"
+                            onchange="loadReservations()"
+                        >
+
+                            <option value="all">
+                                All
+                            </option>
+
+                            <option value="pending">
+                                Pending
+                            </option>
+
+                            <option value="confirmed">
+                                Confirmed
+                            </option>
+
+                            <option value="cancelled">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Restaurant
+                                </th>
+
+                                <th>
+                                    Time
+                                </th>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th>
+                                    Guests
+                                </th>
+
+                                <th>
+                                    Table
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="reservations-body">
+
+                            <tr>
+
+                                <td colspan="8">
+                                    Loading reservations...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- TABLES -->
+        <!-- ================================================= -->
+
+        <section
+            id="tables"
+            class="section"
+        >
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Tables
+                        </h2>
+
+                        <p>
+                            Manage restaurant tables.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="button primary"
+                        onclick="openAddTableModal()"
+                    >
+                        + Add Table
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="table-grid"
+                    id="tables-grid"
+                >
+
+                    <div>
+                        Loading tables...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- NEWSLETTER -->
+        <!-- ================================================= -->
+
+        <section
+            id="newsletter"
+            class="section"
+        >
+
+            <div class="newsletter-layout">
+
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>
+                                Send Newsletter
+                            </h2>
+
+                            <p>
+                                Send an email to your
+                                newsletter subscribers.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        id="newsletter-form"
+                        onsubmit="sendNewsletter(event)"
+                    >
+
+                        <div class="form-group">
+
+                            <label for="subject">
+                                Subject
+                            </label>
+
+                            <input
+                                type="text"
+                                id="subject"
+                                placeholder="Newsletter subject"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="message">
+                                Message
+                            </label>
+
+                            <textarea
+                                id="message"
+                                rows="12"
+                                placeholder="Write your newsletter..."
+                                required
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="newsletter-footer">
+
+                            <span>
+
+                                <strong id="newsletter-subscriber-count">
+                                    0
+                                </strong>
+
+                                active subscribers
+
+                            </span>
+
+
+                            <button
+                                type="submit"
+                                class="button primary"
+                            >
+                                Send Newsletter
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+
+                <div class="card newsletter-info">
+
+                    <h2>
+                        Newsletter
+                    </h2>
+
+
+                    <div class="newsletter-stat">
+
+                        <span>
+                            Active subscribers
+                        </span>
+
+                        <strong id="newsletter-active-count">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <hr>
+
+
+                    <p>
+                        Only active subscribers will receive
+                        the newsletter.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- ADD TABLE MODAL -->
+<!-- ===================================================== -->
+
+<div
+    id="add-table-modal"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>
+                Add Table
+            </h2>
+
+            <button
+                class="modal-close"
+                onclick="closeAddTableModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form onsubmit="addTable(event)">
+
+            <div class="form-group">
+
+                <label for="restaurant-name">
+                    Restaurant
+                </label>
+
+                <select
+                    id="restaurant-name"
+                    required
+                >
+
+                    <option value="">
+                        Select a restaurant
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="table-number">
+                    Table Number
+                </label>
+
+                <input
+                    type="number"
+                    id="table-number"
+                    min="1"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="table-capacity">
+                    Capacity
+                </label>
+
+                <input
+                    type="number"
+                    id="table-capacity"
+                    min="1"
+                    required
+                >
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="button secondary"
+                    onclick="closeAddTableModal()"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="button primary"
+                >
+                    Add Table
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   GLOBAL
+   ===================================================== */
+
+let reservations = [];
+
+let tables = [];
+
+let subscribers = [];
+
+let restaurants = [];
+
+
+/* =====================================================
+   DATE
+   ===================================================== */
+
+function getTodayString() {
+
+    const now = new Date();
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(now.getMonth() + 1)
+            .padStart(2, "0");
+
+    const day =
+        String(now.getDate())
+            .padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+function formatTime(dateString) {
+
+    if (!dateString) {
+        return "-";
+    }
+
+    const date =
+        new Date(dateString);
+
+    return date.toLocaleTimeString(
+        "en-GB",
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+
+}
+
+
+/* =====================================================
+   API
+   ===================================================== */
+
+async function apiFetch(
+    url,
+    options = {}
+) {
+
+    const response =
+        await fetch(
+            url,
+            {
+                credentials: "include",
+
+                ...options,
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json",
+
+                    ...(options.headers || {})
+
+                }
+
+            }
+        );
+
+
+    if (response.status === 401) {
+
+        window.location.href =
+            "/admin/login";
+
+        throw new Error(
+            "Authentication required."
+        );
+
+    }
+
+
+    let data = null;
+
+
+    try {
+
+        data =
+            await response.json();
+
+    }
+
+    catch {
+
+        data = null;
+
+    }
+
+
+    if (!response.ok) {
+
+        let message =
+            "Request failed.";
+
+
+        if (data) {
+
+            if (
+                typeof data.detail ===
+                "string"
+            ) {
+
+                message =
+                    data.detail;
+
+            }
+
+            else if (
+                Array.isArray(data.detail)
+            ) {
+
+                message =
+                    data.detail
+                        .map(
+                            error =>
+                                error.msg ||
+                                JSON.stringify(error)
+                        )
+                        .join(", ");
+
+            }
+
+            else {
+
+                message =
+                    JSON.stringify(data);
+
+            }
+
+        }
+
+
+        throw new Error(message);
+
+    }
+
+
+    return data;
+
+}
+
+
+/* =====================================================
+   NAVIGATION
+   ===================================================== */
+
+function showSection(
+    sectionId,
+    element
+) {
+
+    document
+        .querySelectorAll(".section")
+        .forEach(
+            section => {
+
+                section.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+    document
+        .getElementById(sectionId)
+        .classList.add("active");
+
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(
+            item => {
+
+                item.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+    element.classList.add("active");
+
+
+    const title =
+        document.getElementById(
+            "page-title"
+        );
+
+
+    const description =
+        document.getElementById(
+            "page-description"
+        );
+
+
+    if (
+        sectionId ===
+        "reservations"
+    ) {
+
+        title.textContent =
+            "Reservations";
+
+        description.textContent =
+            "Manage restaurant reservations.";
+
+        loadReservations();
+
+    }
+
+
+    if (
+        sectionId ===
+        "tables"
+    ) {
+
+        title.textContent =
+            "Tables";
+
+        description.textContent =
+            "Manage restaurant tables and occupancy.";
+
+        loadTables();
+
+    }
+
+
+    if (
+        sectionId ===
+        "newsletter"
+    ) {
+
+        title.textContent =
+            "Newsletter";
+
+        description.textContent =
+            "Send emails to newsletter subscribers.";
+
+        loadSubscribers();
+
+    }
+
+}
+
+
+/* =====================================================
+   CURRENT DATE
+   ===================================================== */
+
+document.getElementById(
+    "current-date"
+).textContent =
+    new Date().toLocaleDateString(
+        "en-GB",
+        {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }
+    );
+
+
+document.getElementById(
+    "reservation-date"
+).value =
+    getTodayString();
+
+
+/* =====================================================
+   RESERVATIONS
+   ===================================================== */
+
+async function loadReservations() {
+
+    const body =
+        document.getElementById(
+            "reservations-body"
+        );
+
+
+    body.innerHTML = `
+        <tr>
+            <td colspan="8">
+                Loading reservations...
+            </td>
+        </tr>
+    `;
+
+
+    const date =
+        document.getElementById(
+            "reservation-date"
+        ).value;
+
+
+    const status =
+        document.getElementById(
+            "reservation-status"
+        ).value;
+
+
+    try {
+
+        const params =
+            new URLSearchParams();
+
+
+        if (date) {
+
+            params.set(
+                "date",
+                date
+            );
+
+        }
+
+
+        if (status !== "all") {
+
+            params.set(
+                "status",
+                status
+            );
+
+        }
+
+
+        const data =
+            await apiFetch(
+                `/api/reservations?${params.toString()}`
+            );
+
+
+        reservations =
+            data.reservations || [];
+
+
+        renderReservations();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="8">
+                    Could not load reservations:
+                    ${escapeHtml(error.message)}
+                </td>
+            </tr>
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER RESERVATIONS
+   ===================================================== */
+
+function renderReservations() {
+
+    const body =
+        document.getElementById(
+            "reservations-body"
+        );
+
+
+    document.getElementById(
+        "reservation-count"
+    ).textContent =
+        reservations.length;
+
+
+    const guests =
+        reservations.reduce(
+            (
+                total,
+                reservation
+            ) => {
+
+                if (
+                    reservation.status ===
+                    "cancelled"
+                ) {
+
+                    return total;
+
+                }
+
+
+                return total +
+                    Number(
+                        reservation.party_size || 0
+                    );
+
+            },
+            0
+        );
+
+
+    document.getElementById(
+        "guest-count"
+    ).textContent =
+        guests;
+
+
+    if (
+        reservations.length === 0
+    ) {
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="8">
+                    No reservations found for this date.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    body.innerHTML =
+        reservations.map(
+            reservation => {
+
+                const customer =
+                    reservation.customer || {};
+
+
+                const tableText =
+                    reservation.tables &&
+                    reservation.tables.length
+
+                        ? reservation.tables
+                            .map(
+                                table =>
+                                    `Table ${table.table_number}`
+                            )
+                            .join(", ")
+
+                        : "Not assigned";
+
+
+                const status =
+                    reservation.status ||
+                    "unknown";
+
+
+                const statusLabel =
+                    status.charAt(0).toUpperCase() +
+                    status.slice(1);
+
+
+                const cancelButton =
+                    status === "cancelled"
+
+                        ? ""
+
+                        : `
+                            <button
+                                class="button danger"
+                                onclick="cancelReservation(${reservation.id})"
+                            >
+                                Cancel
+                            </button>
+                        `;
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                reservation.restaurant ||
+                                "-"
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ${formatTime(
+                                    reservation.start_at
+                                )}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="customer">
+
+                                <strong>
+                                    ${escapeHtml(
+                                        customer.name ||
+                                        "Unknown"
+                                    )}
+                                </strong>
+
+                                <span>
+                                    ${escapeHtml(
+                                        customer.email ||
+                                        ""
+                                    )}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            ${reservation.party_size || 0}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                tableText
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                customer.phone ||
+                                "-"
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="badge ${escapeHtml(status)}"
+                            >
+                                ${escapeHtml(statusLabel)}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            ${cancelButton}
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =====================================================
+   CANCEL RESERVATION
+   ===================================================== */
+
+async function cancelReservation(id) {
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to cancel this reservation?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        await apiFetch(
+            `/api/admin/reservations/${id}/cancel`,
+            {
+                method: "POST"
+            }
+        );
+
+
+        alert(
+            "Reservation cancelled successfully."
+        );
+
+
+        await loadReservations();
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Could not cancel reservation:\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+/* =====================================================
+   TABLES
+   ===================================================== */
+
+async function loadTables() {
+
+    const grid =
+        document.getElementById(
+            "tables-grid"
+        );
+
+    grid.innerHTML =
+        "Loading tables...";
+
+    try {
+
+        /*
+         * Load tables.
+         */
+
+        const tableData =
+            await apiFetch(
+                "/api/tables"
+            );
+
+        tables =
+            tableData.tables || [];
+
+
+        /*
+         * Load ALL restaurants separately.
+         *
+         * This is important because a restaurant
+         * can exist even when it has no tables yet.
+         */
+
+        const restaurantData =
+            await apiFetch(
+                "/api/admin/restaurants"
+            );
+
+
+        restaurants =
+            (restaurantData.restaurants || [])
+                .map(
+                    restaurant =>
+                        restaurant.name
+                )
+                .filter(Boolean)
+                .sort(
+                    (a, b) =>
+                        a.localeCompare(b)
+                );
+
+
+        populateRestaurantDropdown();
+
+        renderTables();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        grid.innerHTML = `
+            <div>
+                Could not load tables:
+                ${escapeHtml(error.message)}
+            </div>
+        `;
+
+    }
+}
+
+
+/* =====================================================
+   LOAD RESTAURANTS
+   ===================================================== */
+
+async function loadRestaurants() {
+
+    const select =
+        document.getElementById(
+            "restaurant-name"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    select.innerHTML = `
+        <option value="">
+            Loading restaurants...
+        </option>
+    `;
+
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/admin/restaurants"
+            );
+
+
+        restaurants =
+            data.restaurants || [];
+
+
+        /*
+         * Supports either:
+         *
+         * {
+         *     "restaurants": [
+         *         "Restaurant A",
+         *         "Restaurant B"
+         *     ]
+         * }
+         *
+         * OR:
+         *
+         * {
+         *     "restaurants": [
+         *         { "id": 1, "name": "Restaurant A" },
+         *         { "id": 2, "name": "Restaurant B" }
+         *     ]
+         * }
+         *
+         * IDs are never shown to the admin.
+         */
+
+        restaurants =
+            restaurants
+                .map(
+                    restaurant => {
+
+                        if (
+                            typeof restaurant ===
+                            "string"
+                        ) {
+
+                            return restaurant;
+
+                        }
+
+
+                        return restaurant.name;
+
+                    }
+                )
+                .filter(Boolean)
+                .sort(
+                    (a, b) =>
+                        a.localeCompare(b)
+                );
+
+
+        populateRestaurantDropdown();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Could not load restaurants:",
+            error
+        );
+
+
+        restaurants = [];
+
+
+        select.innerHTML = `
+            <option value="">
+                Could not load restaurants
+            </option>
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   RESTAURANT DROPDOWN
+   ===================================================== */
+
+function populateRestaurantDropdown() {
+
+    const select =
+        document.getElementById(
+            "restaurant-name"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    select.innerHTML = `
+        <option value="">
+            Select a restaurant
+        </option>
+    `;
+
+
+    restaurants.forEach(
+        restaurantName => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            /*
+             * VALUE IS THE RESTAURANT NAME.
+             *
+             * NOT the restaurant ID.
+             */
+
+            option.value =
+                restaurantName;
+
+
+            option.textContent =
+                restaurantName;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (!restaurants.length) {
+
+        select.innerHTML = `
+            <option value="">
+                No restaurants available
+            </option>
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER TABLES
+   ===================================================== */
+
+function renderTables() {
+
+    const grid =
+        document.getElementById(
+            "tables-grid"
+        );
+
+
+    if (!tables.length) {
+
+        grid.innerHTML =
+            "No active tables found.";
+
+        return;
+
+    }
+
+
+    grid.innerHTML =
+        tables.map(
+            table => {
+
+                const occupied =
+                    table.occupied === true;
+
+
+                const statusClass =
+                    occupied
+                        ? "occupied"
+                        : "available";
+
+
+                const statusText =
+                    occupied
+                        ? "Occupied"
+                        : "Available";
+
+
+                let occupiedTime = "";
+
+
+                if (
+                    occupied &&
+                    table.occupied_until
+                ) {
+
+                    occupiedTime = `
+                        <div class="table-time">
+                            Until
+                            ${formatTime(
+                                table.occupied_until
+                            )}
+                        </div>
+                    `;
+
+                }
+
+
+                return `
+
+                    <div
+                        class="restaurant-table ${statusClass}"
+                    >
+
+                        <div class="table-top">
+
+                            <span>
+                                Table
+                                ${escapeHtml(
+                                    table.table_number
+                                )}
+                            </span>
+
+
+                            <span class="table-status">
+                                ${statusText}
+                            </span>
+
+                        </div>
+
+
+                        <div class="table-capacity">
+
+                            ${escapeHtml(
+                                table.capacity
+                            )}
+
+                            seat${table.capacity == 1 ? "" : "s"}
+
+                        </div>
+
+
+                        <div class="table-restaurant">
+
+                            ${escapeHtml(
+                                table.restaurant ||
+                                "Restaurant"
+                            )}
+
+                        </div>
+
+
+                        ${occupiedTime}
+
+
+                        <button
+                            class="button danger small"
+                            onclick="deactivateTable(${table.id})"
+                        >
+                            Deactivate
+                        </button>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =====================================================
+   ADD TABLE MODAL
+   ===================================================== */
+
+async function openAddTableModal() {
+
+    /*
+     * Load restaurants directly from the backend.
+     *
+     * This allows restaurants with ZERO tables
+     * to still appear in the dropdown.
+     */
+
+    await loadRestaurants();
+
+
+    document
+        .getElementById(
+            "add-table-modal"
+        )
+        .classList.add(
+            "active"
+        );
+
+}
+
+
+function closeAddTableModal() {
+
+    document
+        .getElementById(
+            "add-table-modal"
+        )
+        .classList.remove(
+            "active"
+        );
+
+}
+
+
+/* =====================================================
+   ADD TABLE
+   ===================================================== */
+
+async function addTable(event) {
+
+    event.preventDefault();
+
+
+    /*
+     * This is the RESTAURANT NAME.
+     *
+     * No restaurant ID is sent from the frontend.
+     */
+
+    const restaurantName =
+        document.getElementById(
+            "restaurant-name"
+        ).value;
+
+
+    const number =
+        Number(
+            document.getElementById(
+                "table-number"
+            ).value
+        );
+
+
+    const capacity =
+        Number(
+            document.getElementById(
+                "table-capacity"
+            ).value
+        );
+
+
+    if (!restaurantName) {
+
+        alert(
+            "Please select a restaurant."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !number ||
+        number < 1
+    ) {
+
+        alert(
+            "Please enter a valid table number."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !capacity ||
+        capacity < 1
+    ) {
+
+        alert(
+            "Please enter a valid capacity."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        /*
+         * Backend receives:
+         *
+         * {
+         *     "restaurant_name": "Restaurant Name",
+         *     "table_number": 5,
+         *     "capacity": 4
+         * }
+         *
+         * It does NOT receive restaurant_id.
+         */
+
+        await apiFetch(
+            "/api/admin/tables",
+            {
+
+                method: "POST",
+
+                body:
+                    JSON.stringify({
+
+                        restaurant_name:
+                            restaurantName,
+
+                        table_number:
+                            number,
+
+                        capacity:
+                            capacity
+
+                    })
+
+            }
+        );
+
+
+        alert(
+            `Table ${number} added to ${restaurantName} successfully.`
+        );
+
+
+        closeAddTableModal();
+
+
+        document.getElementById(
+            "restaurant-name"
+        ).value = "";
+
+
+        document.getElementById(
+            "table-number"
+        ).value = "";
+
+
+        document.getElementById(
+            "table-capacity"
+        ).value = "";
+
+
+        await loadTables();
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Could not add table:\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   DEACTIVATE TABLE
+   ===================================================== */
+
+async function deactivateTable(id) {
+
+    const confirmed =
+        confirm(
+            "Deactivate this table?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        await apiFetch(
+            `/api/admin/tables/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        alert(
+            "Table deactivated successfully."
+        );
+
+
+        await loadTables();
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Could not deactivate table:\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   NEWSLETTER SUBSCRIBERS
+   ===================================================== */
+
+async function loadSubscribers() {
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/admin/newsletter/subscribers"
+            );
+
+
+        subscribers =
+            data.subscribers || [];
+
+
+        const count =
+            data.count ||
+            subscribers.length;
+
+
+        document.getElementById(
+            "subscriber-count"
+        ).textContent =
+            count;
+
+
+        document.getElementById(
+            "newsletter-subscriber-count"
+        ).textContent =
+            count;
+
+
+        document.getElementById(
+            "newsletter-active-count"
+        ).textContent =
+            count;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Could not load subscribers:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SEND NEWSLETTER
+   ===================================================== */
+
+async function sendNewsletter(event) {
+
+    event.preventDefault();
+
+
+    const subject =
+        document.getElementById(
+            "subject"
+        ).value.trim();
+
+
+    const message =
+        document.getElementById(
+            "message"
+        ).value.trim();
+
+
+    if (!subject || !message) {
+
+        alert(
+            "Please enter a subject and message."
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "Send this newsletter to all active subscribers?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/admin/newsletter/send",
+                {
+
+                    method: "POST",
+
+                    body:
+                        JSON.stringify({
+
+                            subject:
+                                subject,
+
+                            message:
+                                message
+
+                        })
+
+                }
+            );
+
+
+        alert(
+            `Newsletter completed.\n\n` +
+            `Sent: ${data.sent}\n` +
+            `Failed: ${data.failed}\n` +
+            `Total: ${data.total_subscribers}`
+        );
+
+
+        document
+            .getElementById(
+                "newsletter-form"
+            )
+            .reset();
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Could not send newsletter:\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LOGOUT
+   ===================================================== */
+
+async function logout() {
+
+    try {
+
+        await apiFetch(
+            "/api/admin/logout",
+            {
+                method: "POST"
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+    }
+
+
+    window.location.href =
+        "/admin/login";
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+   ===================================================== */
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   INITIAL LOAD
+   ===================================================== */
+
+async function initializeDashboard() {
+
+    await Promise.allSettled([
+
+        loadReservations(),
+
+        loadTables(),
+
+        loadRestaurants(),
+
+        loadSubscribers()
+
+    ]);
+
+}
+
+
+initializeDashboard();
+
+</script>
+
+
+</body>
+</html>

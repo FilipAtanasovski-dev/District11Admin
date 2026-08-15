@@ -1,0 +1,3304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Employee Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+
+<style>
+
+    /* =====================================================
+       BASIC DASHBOARD FALLBACK STYLES
+       ===================================================== */
+
+    .loading-message,
+    .empty-message,
+    .error-message {
+        padding: 30px;
+        text-align: center;
+        color: #777;
+    }
+
+    .error-message {
+        color: #a33;
+    }
+
+    .refresh-button {
+        border: 1px solid #ddd;
+        background: white;
+        padding: 9px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .refresh-button:hover {
+        background: #f5f5f5;
+    }
+
+    .card-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .table-number-list {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .table-pill {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 5px;
+        background: #f0f0f0;
+        font-size: 13px;
+    }
+
+    .table-pill.occupied {
+        background: #fff0f0;
+        color: #a33;
+    }
+
+    .table-pill.available {
+        background: #eef8ef;
+        color: #34753b;
+    }
+
+    .restaurant-table {
+        cursor: default;
+    }
+
+    .restaurant-table.available {
+        border-color: #cfe5d1;
+    }
+
+    .restaurant-table.occupied {
+        border-color: #ead0d0;
+    }
+
+    .table-reservation {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #777;
+    }
+
+    .stat-card strong {
+        display: block;
+        font-size: 25px;
+        margin-top: 4px;
+    }
+
+
+    /* =====================================================
+       ADD RESERVATION FORM
+       ===================================================== */
+
+    .reservation-form {
+        padding: 5px 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+
+    .reservation-form-grid {
+        display: grid;
+
+        /*
+         * Two equal columns on desktop.
+         * minmax(0, 1fr) prevents inputs from
+         * overflowing their columns.
+         */
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr);
+
+        gap: 18px 22px;
+
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+
+    .reservation-form .form-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        width: 100%;
+    }
+
+
+    .reservation-form .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+
+    .reservation-form label {
+        font-weight: 600;
+        margin-bottom: 7px;
+        line-height: 1.3;
+    }
+
+
+    /*
+     * IMPORTANT:
+     * All form controls use the same sizing.
+     * box-sizing:border-box makes sure the padding
+     * and border are included INSIDE the width.
+     */
+
+    .reservation-form input,
+    .reservation-form select,
+    .reservation-form textarea {
+        display: block;
+
+        width: 100%;
+        max-width: 100%;
+
+        min-width: 0;
+
+        box-sizing: border-box;
+
+        padding: 11px 12px;
+
+        border: 1px solid #ddd;
+
+        border-radius: 6px;
+
+        font-size: 14px;
+        line-height: 1.4;
+
+        font-family: inherit;
+
+        background: #fff;
+    }
+
+
+    .reservation-form input,
+    .reservation-form select {
+        height: 44px;
+    }
+
+
+    .reservation-form textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+
+    /*
+     * Prevent browser date/time controls from
+     * becoming wider than the form column.
+     */
+
+    .reservation-form input[type="date"],
+    .reservation-form input[type="time"],
+    .reservation-form input[type="number"],
+    .reservation-form input[type="email"],
+    .reservation-form input[type="tel"],
+    .reservation-form input[type="text"] {
+        width: 100%;
+        max-width: 100%;
+    }
+
+
+    .reservation-form select {
+        cursor: pointer;
+    }
+
+
+    .reservation-form input:focus,
+    .reservation-form select:focus,
+    .reservation-form textarea:focus {
+        outline: none;
+        border-color: #999;
+    }
+
+
+    /* =====================================================
+       RESERVATION ACTIONS
+       ===================================================== */
+
+    .reservation-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        margin-top: 22px;
+        padding-top: 20px;
+
+        border-top: 1px solid #eee;
+
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+
+    .reservation-actions > span {
+        font-size: 14px;
+        color: #777;
+        line-height: 1.4;
+    }
+
+
+    .reservation-buttons {
+        display: flex;
+        gap: 10px;
+
+        flex-shrink: 0;
+    }
+
+
+    .reservation-buttons button {
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+       AVAILABILITY RESULT
+       ===================================================== */
+
+    .availability-result {
+        display: none;
+
+        margin-top: 20px;
+
+        padding: 15px;
+
+        border-radius: 8px;
+
+        font-size: 14px;
+
+        line-height: 1.5;
+
+        box-sizing: border-box;
+
+        width: 100%;
+    }
+
+
+    .availability-result.show {
+        display: block;
+    }
+
+
+    .availability-result.available {
+        background: #eef8ef;
+        border: 1px solid #cfe5d1;
+        color: #34753b;
+    }
+
+
+    .availability-result.unavailable {
+        background: #fff0f0;
+        border: 1px solid #ead0d0;
+        color: #a33;
+    }
+
+
+    .availability-result.checking {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+
+
+    .availability-title {
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+
+    .availability-tables {
+        margin-top: 8px;
+        font-weight: 600;
+    }
+
+
+    .button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+
+    /* =====================================================
+       RESERVATION FILTERS
+       ===================================================== */
+
+    .filters {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+
+    .filters input,
+    .filters select {
+        box-sizing: border-box;
+        height: 42px;
+    }
+
+
+    /* =====================================================
+       TABLE OCCUPANCY CONTROLS
+       ===================================================== */
+
+    .card-actions input[type="datetime-local"] {
+        box-sizing: border-box;
+        height: 42px;
+        min-width: 210px;
+        max-width: 100%;
+    }
+
+
+    /* =====================================================
+       DESKTOP
+       ===================================================== */
+
+    @media (min-width: 1101px) {
+
+        .reservation-form-grid {
+            grid-template-columns:
+                minmax(0, 1fr)
+                minmax(0, 1fr);
+
+            gap: 18px 24px;
+        }
+
+    }
+
+
+    /* =====================================================
+       TABLET
+       ===================================================== */
+
+    @media (min-width: 601px) and (max-width: 1100px) {
+
+        /*
+         * Keep two columns on tablets, but reduce
+         * the gap so inputs don't become cramped.
+         */
+
+        .reservation-form-grid {
+            grid-template-columns:
+                minmax(0, 1fr)
+                minmax(0, 1fr);
+
+            gap: 16px;
+        }
+
+
+        .reservation-form input,
+        .reservation-form select,
+        .reservation-form textarea {
+            font-size: 14px;
+        }
+
+
+        .reservation-form input,
+        .reservation-form select {
+            height: 43px;
+        }
+
+
+        .reservation-actions {
+            flex-wrap: wrap;
+        }
+
+
+        .reservation-actions > span {
+            flex: 1 1 100%;
+        }
+
+
+        .reservation-buttons {
+            width: 100%;
+        }
+
+
+        .reservation-buttons button {
+            flex: 1;
+        }
+
+
+        .card-actions {
+            flex-wrap: wrap;
+        }
+
+
+        .card-actions input[type="datetime-local"] {
+            min-width: 0;
+            flex: 1;
+        }
+
+    }
+
+
+    /* =====================================================
+       SMALL TABLET / LARGE PHONE
+       ===================================================== */
+
+    @media (max-width: 800px) {
+
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+
+        .filters {
+            width: 100%;
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1fr)
+                minmax(0, 1fr);
+
+            gap: 8px;
+        }
+
+
+        .filters input,
+        .filters select {
+            width: 100%;
+            min-width: 0;
+        }
+
+
+        .filters .refresh-button {
+            width: 100%;
+        }
+
+
+        /*
+         * At this width, one column prevents
+         * the text boxes from becoming too narrow.
+         */
+
+        .reservation-form-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+
+        .reservation-form .form-group.full-width {
+            grid-column: auto;
+        }
+
+
+        .reservation-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+        }
+
+
+        .reservation-actions > span {
+            width: 100%;
+        }
+
+
+        .reservation-buttons {
+            width: 100%;
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1fr)
+                minmax(0, 1fr);
+
+            gap: 10px;
+        }
+
+
+        .reservation-buttons button {
+            width: 100%;
+            min-width: 0;
+        }
+
+
+        .card-actions {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+
+        .card-actions input[type="datetime-local"] {
+            width: 100%;
+            min-width: 0;
+            flex: 1 1 100%;
+        }
+
+
+        .card-actions .refresh-button {
+            width: 100%;
+        }
+
+    }
+
+
+    /* =====================================================
+       VERY SMALL SCREENS
+       ===================================================== */
+
+    @media (max-width: 480px) {
+
+        .reservation-form input,
+        .reservation-form select,
+        .reservation-form textarea {
+            font-size: 16px;
+        }
+
+
+        .reservation-form input,
+        .reservation-form select {
+            height: 46px;
+        }
+
+
+        .reservation-buttons {
+            grid-template-columns: 1fr;
+        }
+
+
+        .filters {
+            grid-template-columns: 1fr;
+        }
+
+
+        .reservation-actions {
+            padding-top: 16px;
+        }
+
+    }
+    /* =====================================================
+   ADD INTERNAL SPACE AROUND RESERVATION FORM
+   ===================================================== */
+
+.reservation-form {
+    padding: 10px 20px 20px 20px;
+    box-sizing: border-box;
+}
+
+
+/* Give the availability message the same spacing */
+#availability-result {
+    margin-left: 20px;
+    margin-right: 20px;
+    width: auto;
+}
+
+
+/* Keep the buttons away from the card edges */
+.reservation-actions {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+
+/* =====================================================
+   DESKTOP
+   ===================================================== */
+
+@media (min-width: 1001px) {
+
+    .reservation-form {
+        padding-left: 28px;
+        padding-right: 28px;
+    }
+
+    #availability-result {
+        margin-left: 28px;
+        margin-right: 28px;
+    }
+
+    .reservation-actions {
+        margin-left: 28px;
+        margin-right: 28px;
+    }
+
+}
+
+
+/* =====================================================
+   TABLET
+   ===================================================== */
+
+@media (min-width: 601px) and (max-width: 1000px) {
+
+    .reservation-form {
+        padding-left: 22px;
+        padding-right: 22px;
+    }
+
+    #availability-result {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .reservation-actions {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+}
+
+
+/* =====================================================
+   SMALL SCREEN
+   ===================================================== */
+
+@media (max-width: 600px) {
+
+    .reservation-form {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    #availability-result {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    .reservation-actions {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+}   
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <h2>Restaurant</h2>
+
+            <span>
+                Management
+            </span>
+
+        </div>
+
+
+        <nav>
+
+            <a
+                href="#"
+                class="nav-item active"
+                onclick="showSection('reservations', this); return false;"
+            >
+
+                <span>📅</span>
+
+                Reservations
+
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+                onclick="showSection('tables', this); return false;"
+            >
+
+                <span>🪑</span>
+
+                Tables
+
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="mode-indicator employee-mode">
+
+                <span class="status-dot"></span>
+
+                Employee Mode
+
+            </div>
+
+
+            <a
+                href="/"
+                class="logout"
+            >
+
+                ← Exit
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="main">
+
+
+        <!-- =================================================
+             TOP BAR
+             ================================================= -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1 id="page-title">
+                    Reservations
+                </h1>
+
+                <p id="page-description">
+                    View and create restaurant reservations.
+                </p>
+
+            </div>
+
+
+            <div
+                class="current-date"
+                id="current-date"
+            ></div>
+
+        </header>
+
+
+        <!-- =================================================
+             RESERVATIONS
+             ================================================= -->
+
+        <section
+            id="reservations"
+            class="section active"
+        >
+
+
+            <!-- =================================================
+                 STATISTICS
+                 ================================================= -->
+
+            <div class="stats">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📅
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Today's Reservations
+                        </span>
+
+                        <strong
+                            id="stat-reservations"
+                        >
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Today's Guests
+                        </span>
+
+                        <strong
+                            id="stat-guests"
+                        >
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🪑
+                    </div>
+
+                    <div>
+
+                        <span class="stat-label">
+                            Tables Occupied
+                        </span>
+
+                        <strong
+                            id="stat-tables"
+                        >
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 ADD RESERVATION
+                 ================================================= -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Add Reservation
+                        </h2>
+
+                        <p>
+                            Check table availability and create a new reservation.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    id="reservation-form"
+                    class="reservation-form"
+                    onsubmit="createReservation(event)"
+                >
+
+                    <div class="reservation-form-grid">
+
+
+                        <!-- RESTAURANT -->
+
+                        <div class="form-group">
+
+                            <label for="reservation-restaurant">
+                                Restaurant
+                            </label>
+
+                            <select
+                                id="reservation-restaurant"
+                                required
+                            >
+
+                                <option value="">
+                                    Loading restaurants...
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- PARTY SIZE -->
+
+                        <div class="form-group">
+
+                            <label for="reservation-party-size">
+                                Number of Guests
+                            </label>
+
+                            <input
+                                type="number"
+                                id="reservation-party-size"
+                                min="1"
+                                max="100"
+                                placeholder="e.g. 4"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- DATE -->
+
+                        <div class="form-group">
+
+                            <label for="new-reservation-date">
+                                Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="new-reservation-date"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- TIME -->
+
+                        <div class="form-group">
+
+                            <label for="new-reservation-time">
+                                Time
+                            </label>
+
+                            <input
+                                type="time"
+                                id="new-reservation-time"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- DURATION -->
+
+                        <div class="form-group">
+
+                            <label for="reservation-duration">
+                                Duration
+                            </label>
+
+                            <select
+                                id="reservation-duration"
+                            >
+
+                                <option value="60">
+                                    1 hour
+                                </option>
+
+                                <option
+                                    value="90"
+                                >
+                                    1 hour 30 minutes
+                                </option>
+
+                                <option
+                                    value="120"
+                                    selected
+                                >
+                                    2 hours
+                                </option>
+
+                                <option value="150">
+                                    2 hours 30 minutes
+                                </option>
+
+                                <option value="180">
+                                    3 hours
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- CUSTOMER NAME -->
+
+                        <div class="form-group">
+
+                            <label for="customer-name">
+                                Customer Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="customer-name"
+                                placeholder="Full name"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="form-group">
+
+                            <label for="customer-email">
+                                Email
+                            </label>
+
+                            <input
+                                type="email"
+                                id="customer-email"
+                                placeholder="customer@example.com"
+                            >
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="form-group">
+
+                            <label for="customer-phone">
+                                Phone
+                            </label>
+
+                            <input
+                                type="tel"
+                                id="customer-phone"
+                                placeholder="+31 6 12345678"
+                            >
+
+                        </div>
+
+
+                        <!-- NOTES -->
+
+                        <div class="form-group full-width">
+
+                            <label for="reservation-notes">
+                                Notes
+                            </label>
+
+                            <textarea
+                                id="reservation-notes"
+                                rows="4"
+                                placeholder="Optional notes..."
+                            ></textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- AVAILABILITY RESULT -->
+
+                    <div
+                        id="availability-result"
+                        class="availability-result"
+                    ></div>
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="reservation-actions">
+
+                        <span>
+                            Check availability before creating the reservation.
+                        </span>
+
+
+                        <div class="reservation-buttons">
+
+                            <button
+                                type="button"
+                                class="button secondary"
+                                onclick="checkAvailability()"
+                            >
+                                Check Availability
+                            </button>
+
+
+                            <button
+                                type="submit"
+                                id="create-reservation-button"
+                                class="button primary"
+                                disabled
+                            >
+                                Create Reservation
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- =================================================
+                 RESERVATION LIST
+                 ================================================= -->
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Reservations
+                        </h2>
+
+                        <p>
+                            Reservations for the selected date.
+                        </p>
+
+                    </div>
+
+
+                    <div class="filters">
+
+
+                        <input
+                            type="date"
+                            id="reservation-date"
+                        >
+
+
+                        <select
+                            id="reservation-status"
+                        >
+
+                            <option value="all">
+                                All
+                            </option>
+
+                            <option value="confirmed">
+                                Confirmed
+                            </option>
+
+                            <option value="cancelled">
+                                Cancelled
+                            </option>
+
+                            <option value="pending">
+                                Pending
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            class="refresh-button"
+                            onclick="loadReservations()"
+                        >
+                            ↻ Refresh
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Time
+                                </th>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th>
+                                    Guests
+                                </th>
+
+                                <th>
+                                    Table
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="reservations-body"
+                        >
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="loading-message"
+                                >
+                                    Loading reservations...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TABLES
+             ================================================= -->
+
+        <section
+            id="tables"
+            class="section"
+        >
+
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Table Occupancy
+                        </h2>
+
+                        <p>
+                            View table availability and occupancy.
+                        </p>
+
+                    </div>
+
+
+                    <div class="card-actions">
+
+                        <input
+                            type="datetime-local"
+                            id="occupancy-time"
+                        >
+
+
+                        <button
+                            class="refresh-button"
+                            onclick="loadTables()"
+                        >
+                            ↻ Refresh
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="table-grid"
+                    class="table-grid"
+                >
+
+                    <div
+                        class="loading-message"
+                    >
+                        Loading tables...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+/* ============================================================
+   GLOBAL STATE
+   ============================================================ */
+
+let reservations = [];
+
+let tables = [];
+
+let restaurants = [];
+
+let reservationAvailability = null;
+
+
+/* ============================================================
+   API HELPER
+   ============================================================ */
+
+async function apiFetch(
+    url,
+    options = {}
+) {
+
+    const response =
+        await fetch(
+            url,
+            {
+                credentials: "include",
+
+                ...options,
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json",
+
+                    ...(options.headers || {})
+
+                }
+
+            }
+        );
+
+
+    let data = null;
+
+
+    try {
+
+        data =
+            await response.json();
+
+    }
+
+    catch {
+
+        data = null;
+
+    }
+
+
+    if (response.status === 401) {
+
+        window.location.href =
+            "/admin/login";
+
+        throw new Error(
+            "Authentication required."
+        );
+
+    }
+
+
+    if (!response.ok) {
+
+        let message =
+            "Request failed.";
+
+
+        if (data) {
+
+            if (
+                typeof data.detail ===
+                "string"
+            ) {
+
+                message =
+                    data.detail;
+
+            }
+
+            else if (
+                Array.isArray(data.detail)
+            ) {
+
+                message =
+                    data.detail
+                        .map(
+                            error =>
+                                error.msg ||
+                                JSON.stringify(error)
+                        )
+                        .join(", ");
+
+            }
+
+            else {
+
+                message =
+                    JSON.stringify(data);
+
+            }
+
+        }
+
+
+        throw new Error(message);
+
+    }
+
+
+    return data;
+
+}
+
+
+/* ============================================================
+   HELPER: TODAY
+   ============================================================ */
+
+function getTodayString() {
+
+    const date = new Date();
+
+    const year =
+        date.getFullYear();
+
+    const month =
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0");
+
+    const day =
+        String(
+            date.getDate()
+        ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+/* ============================================================
+   HELPER: FORMAT TIME
+   ============================================================ */
+
+function formatTime(dateString) {
+
+    if (!dateString) {
+        return "-";
+    }
+
+    // Extract the time directly from the backend timestamp.
+    // This prevents JavaScript from converting it to the
+    // computer/browser's local timezone.
+    const match =
+        String(dateString).match(/T(\d{2}):(\d{2})/);
+
+    if (match) {
+        return `${match[1]}:${match[2]}`;
+    }
+
+    return "-";
+}
+
+/* ============================================================
+   HELPER: ESCAPE HTML
+   ============================================================ */
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+
+function showSection(
+    sectionId,
+    element
+) {
+
+    document
+        .querySelectorAll(".section")
+        .forEach(
+            section => {
+
+                section.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+    const section =
+        document.getElementById(
+            sectionId
+        );
+
+
+    if (section) {
+
+        section.classList.add(
+            "active"
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(
+            item => {
+
+                item.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+    if (element) {
+
+        element.classList.add(
+            "active"
+        );
+
+    }
+
+
+    const title =
+        document.getElementById(
+            "page-title"
+        );
+
+
+    const description =
+        document.getElementById(
+            "page-description"
+        );
+
+
+    if (
+        sectionId ===
+        "reservations"
+    ) {
+
+        title.textContent =
+            "Reservations";
+
+        description.textContent =
+            "View and create restaurant reservations.";
+
+        loadReservations();
+
+    }
+
+
+    if (
+        sectionId ===
+        "tables"
+    ) {
+
+        title.textContent =
+            "Tables";
+
+        description.textContent =
+            "View table availability and occupancy.";
+
+        loadTables();
+
+    }
+
+}
+
+
+/* ============================================================
+   LOAD RESTAURANTS
+   ============================================================ */
+
+async function loadRestaurants() {
+
+    const select =
+        document.getElementById(
+            "reservation-restaurant"
+        );
+
+
+    try {
+
+        /*
+         * The backend endpoint returns
+         * the restaurants.
+         */
+
+        const data =
+            await apiFetch(
+                "/api/employee/restaurants"
+            );
+
+
+        restaurants =
+            data.restaurants || [];
+
+
+        select.innerHTML = `
+
+            <option value="">
+                Select a restaurant
+            </option>
+
+        `;
+
+
+        restaurants.forEach(
+            restaurant => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                /*
+                 * Support both:
+                 *
+                 * {
+                 *     "name": "..."
+                 * }
+                 *
+                 * and plain strings.
+                 */
+
+                const name =
+                    typeof restaurant ===
+                    "string"
+
+                        ? restaurant
+
+                        : restaurant.name;
+
+
+                option.value =
+                    name;
+
+                option.textContent =
+                    name;
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        if (!restaurants.length) {
+
+            select.innerHTML = `
+
+                <option value="">
+                    No restaurants available
+                </option>
+
+            `;
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Could not load restaurants:",
+            error
+        );
+
+
+        select.innerHTML = `
+
+            <option value="">
+                Could not load restaurants
+            </option>
+
+        `;
+
+    }
+
+}
+
+
+/* ============================================================
+   CHECK AVAILABILITY
+   ============================================================ */
+
+async function checkAvailability() {
+
+    const restaurant =
+        document.getElementById(
+            "reservation-restaurant"
+        ).value;
+
+
+    const date =
+        document.getElementById(
+            "new-reservation-date"
+        ).value;
+
+
+    const time =
+        document.getElementById(
+            "new-reservation-time"
+        ).value;
+
+
+    const partySize =
+        Number(
+            document.getElementById(
+                "reservation-party-size"
+            ).value
+        );
+
+
+    const duration =
+        Number(
+            document.getElementById(
+                "reservation-duration"
+            ).value
+        );
+
+
+    const result =
+        document.getElementById(
+            "availability-result"
+        );
+
+
+    const createButton =
+        document.getElementById(
+            "create-reservation-button"
+        );
+
+
+    /*
+     * Reset previous availability.
+     */
+
+    reservationAvailability =
+        null;
+
+
+    createButton.disabled =
+        true;
+
+
+    /*
+     * Validate fields.
+     */
+
+    if (!restaurant) {
+
+        showAvailability(
+            "Please select a restaurant.",
+            "unavailable"
+        );
+
+        return;
+
+    }
+
+
+    if (!date) {
+
+        showAvailability(
+            "Please select a date.",
+            "unavailable"
+        );
+
+        return;
+
+    }
+
+
+    if (!time) {
+
+        showAvailability(
+            "Please select a time.",
+            "unavailable"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !partySize ||
+        partySize < 1
+    ) {
+
+        showAvailability(
+            "Please enter a valid number of guests.",
+            "unavailable"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Show checking state.
+     */
+
+    showAvailability(
+        "Checking table availability...",
+        "checking"
+    );
+
+
+    try {
+
+        const params =
+            new URLSearchParams();
+
+
+        params.set(
+            "restaurant_name",
+            restaurant
+        );
+
+
+        params.set(
+            "date",
+            date
+        );
+
+
+        params.set(
+            "time",
+            time
+        );
+
+
+        params.set(
+            "party_size",
+            partySize
+        );
+
+
+        params.set(
+            "duration_minutes",
+            duration
+        );
+
+
+        const data =
+            await apiFetch(
+                "/api/employee/reservation-availability?" +
+                params.toString()
+            );
+
+
+        reservationAvailability =
+            data;
+
+
+        if (
+            data.available === true
+        ) {
+
+            const tableText =
+                (data.tables || [])
+                    .map(
+                        table =>
+                            `Table ${escapeHtml(
+                                table.table_number
+                            )} (${escapeHtml(
+                                table.capacity
+                            )} seats)`
+                    )
+                    .join(", ");
+
+
+            showAvailability(
+
+                `
+                    <div class="availability-title">
+                        ✓ Tables available
+                    </div>
+
+                    <div>
+                        ${escapeHtml(
+                            data.reason ||
+                            "A suitable table is available."
+                        )}
+                    </div>
+
+                    <div class="availability-tables">
+                        Assigned:
+                        ${tableText || "Table will be assigned"}
+                    </div>
+                `,
+
+                "available",
+
+                true
+
+            );
+
+
+            createButton.disabled =
+                false;
+
+        }
+
+        else {
+
+            showAvailability(
+
+                `
+                    <div class="availability-title">
+                        ✕ No vacancy
+                    </div>
+
+                    <div>
+                        ${escapeHtml(
+                            data.reason ||
+                            "No suitable tables are available."
+                        )}
+                    </div>
+
+                    ${
+                        data.available_capacity !==
+                        undefined
+
+                            ? `
+                                <div class="availability-tables">
+                                    Available capacity:
+                                    ${escapeHtml(
+                                        data.available_capacity
+                                    )}
+                                    seats
+                                </div>
+                              `
+
+                            : ""
+                    }
+                `,
+
+                "unavailable",
+
+                true
+
+            );
+
+
+            createButton.disabled =
+                true;
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Availability check failed:",
+            error
+        );
+
+
+        showAvailability(
+
+            `
+                <div class="availability-title">
+                    Could not check availability
+                </div>
+
+                <div>
+                    ${escapeHtml(
+                        error.message
+                    )}
+                </div>
+            `,
+
+            "unavailable",
+
+            true
+
+        );
+
+
+        createButton.disabled =
+            true;
+
+    }
+
+}
+
+
+/* ============================================================
+   SHOW AVAILABILITY
+   ============================================================ */
+
+function showAvailability(
+    content,
+    type,
+    isHtml = false
+) {
+
+    const result =
+        document.getElementById(
+            "availability-result"
+        );
+
+
+    result.className =
+        "availability-result show " +
+        type;
+
+
+    if (isHtml) {
+
+        result.innerHTML =
+            content;
+
+    }
+
+    else {
+
+        result.textContent =
+            content;
+
+    }
+
+}
+
+
+/* ============================================================
+   CREATE RESERVATION
+   ============================================================ */
+
+async function createReservation(
+    event
+) {
+
+    event.preventDefault();
+
+
+    /*
+     * NEVER trust the previous availability
+     * result alone.
+     *
+     * The backend performs its own
+     * availability check again.
+     */
+
+    const restaurant =
+        document.getElementById(
+            "reservation-restaurant"
+        ).value;
+
+
+    const customerName =
+        document.getElementById(
+            "customer-name"
+        ).value.trim();
+
+
+    const customerEmail =
+        document.getElementById(
+            "customer-email"
+        ).value.trim();
+
+
+    const customerPhone =
+        document.getElementById(
+            "customer-phone"
+        ).value.trim();
+
+
+    const date =
+        document.getElementById(
+            "new-reservation-date"
+        ).value;
+
+
+    const time =
+        document.getElementById(
+            "new-reservation-time"
+        ).value;
+
+
+    const partySize =
+        Number(
+            document.getElementById(
+                "reservation-party-size"
+            ).value
+        );
+
+
+    const duration =
+        Number(
+            document.getElementById(
+                "reservation-duration"
+            ).value
+        );
+
+
+    const notes =
+        document.getElementById(
+            "reservation-notes"
+        ).value.trim();
+
+
+    if (!restaurant) {
+
+        alert(
+            "Please select a restaurant."
+        );
+
+        return;
+
+    }
+
+
+    if (!customerName) {
+
+        alert(
+            "Please enter the customer's name."
+        );
+
+        return;
+
+    }
+
+
+    if (!date || !time) {
+
+        alert(
+            "Please select the reservation date and time."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !partySize ||
+        partySize < 1
+    ) {
+
+        alert(
+            "Please enter a valid number of guests."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Ask the employee for confirmation.
+     */
+
+    const confirmed =
+        confirm(
+
+            `Create reservation?\n\n` +
+
+            `Restaurant: ${restaurant}\n` +
+
+            `Customer: ${customerName}\n` +
+
+            `Date: ${date}\n` +
+
+            `Time: ${time}\n` +
+
+            `Guests: ${partySize}`
+
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    const createButton =
+        document.getElementById(
+            "create-reservation-button"
+        );
+
+
+    createButton.disabled =
+        true;
+
+
+    createButton.textContent =
+        "Creating...";
+
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/employee/reservations",
+                {
+
+                    method: "POST",
+
+                    body:
+                        JSON.stringify({
+
+                            restaurant_name:
+                                restaurant,
+
+                            customer_name:
+                                customerName,
+
+                            customer_email:
+                                customerEmail ||
+                                null,
+
+                            customer_phone:
+                                customerPhone ||
+                                null,
+
+                            date:
+                                date,
+
+                            time:
+                                time,
+
+                            party_size:
+                                partySize,
+
+                            duration_minutes:
+                                duration,
+
+                            notes:
+                                notes ||
+                                null
+
+                        })
+
+                }
+            );
+
+
+        const reservation =
+            data.reservation;
+
+
+        const assignedTables =
+            (
+                reservation.tables ||
+                []
+            )
+                .map(
+                    table =>
+                        `Table ${table.table_number}`
+                )
+                .join(", ");
+
+
+        alert(
+
+            "Reservation created successfully!\n\n" +
+
+            `Customer: ${reservation.customer.name}\n` +
+
+            `Time: ${formatTime(
+                reservation.start_at
+            )}\n` +
+
+            `Guests: ${reservation.party_size}\n` +
+
+            `Table: ${
+                assignedTables ||
+                "Assigned"
+            }\n\n` +
+
+            `Confirmation: ${
+                reservation.confirmation_code
+            }`
+
+        );
+
+
+        /*
+         * Reset form.
+         */
+
+        document
+            .getElementById(
+                "reservation-form"
+            )
+            .reset();
+
+
+        document
+            .getElementById(
+                "new-reservation-date"
+            )
+            .value =
+                getTodayString();
+
+
+        reservationAvailability =
+            null;
+
+
+        document
+            .getElementById(
+                "availability-result"
+            )
+            .className =
+                "availability-result";
+
+
+        createButton.disabled =
+            true;
+
+
+        createButton.textContent =
+            "Create Reservation";
+
+
+        /*
+         * Refresh today's reservations
+         * if appropriate.
+         */
+
+        loadReservations();
+
+        loadTables();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Could not create reservation:",
+            error
+        );
+
+
+        /*
+         * This is particularly important
+         * if another employee booked the
+         * table between the availability
+         * check and this request.
+         */
+
+        showAvailability(
+
+            `
+                <div class="availability-title">
+                    Reservation could not be created
+                </div>
+
+                <div>
+                    ${escapeHtml(
+                        error.message
+                    )}
+                </div>
+            `,
+
+            "unavailable",
+
+            true
+
+        );
+
+
+        alert(
+            "Could not create reservation:\n\n" +
+            error.message
+        );
+
+
+        createButton.disabled =
+            true;
+
+
+        createButton.textContent =
+            "Create Reservation";
+
+    }
+
+}
+
+
+/* ============================================================
+   INVALIDATE AVAILABILITY WHEN INPUT CHANGES
+   ============================================================ */
+
+function invalidateAvailability() {
+
+    reservationAvailability =
+        null;
+
+
+    const createButton =
+        document.getElementById(
+            "create-reservation-button"
+        );
+
+
+    createButton.disabled =
+        true;
+
+
+    const result =
+        document.getElementById(
+            "availability-result"
+        );
+
+
+    result.className =
+        "availability-result";
+
+}
+
+
+/* ============================================================
+   LOAD RESERVATIONS
+   ============================================================ */
+
+async function loadReservations() {
+
+    const tbody =
+        document.getElementById(
+            "reservations-body"
+        );
+
+
+    tbody.innerHTML = `
+
+        <tr>
+
+            <td
+                colspan="6"
+                class="loading-message"
+            >
+                Loading reservations...
+            </td>
+
+        </tr>
+
+    `;
+
+
+    const selectedDate =
+        document.getElementById(
+            "reservation-date"
+        ).value;
+
+
+    const selectedStatus =
+        document.getElementById(
+            "reservation-status"
+        ).value;
+
+
+    try {
+
+        const params =
+            new URLSearchParams();
+
+
+        if (selectedDate) {
+
+            params.set(
+                "date",
+                selectedDate
+            );
+
+        }
+
+
+        if (
+            selectedStatus &&
+            selectedStatus !== "all"
+        ) {
+
+            params.set(
+                "status",
+                selectedStatus
+            );
+
+        }
+
+
+        const data =
+            await apiFetch(
+                "/api/reservations?" +
+                params.toString()
+            );
+
+
+        reservations =
+            data.reservations || [];
+
+
+        renderReservations();
+
+        updateReservationStats();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Reservation API error:",
+            error
+        );
+
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="error-message"
+                >
+                    Could not load reservations:
+                    ${escapeHtml(
+                        error.message
+                    )}
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+
+/* ============================================================
+   RENDER RESERVATIONS
+   ============================================================ */
+
+function renderReservations() {
+
+    const tbody =
+        document.getElementById(
+            "reservations-body"
+        );
+
+
+    if (!reservations.length) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                    class="empty-message"
+                >
+                    No reservations found for this date.
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        reservations
+            .map(
+                reservation => {
+
+                    const customer =
+                        reservation.customer ||
+                        {};
+
+
+                    const tableNumbers =
+                        reservation.tables ||
+                        [];
+
+
+                    const tableText =
+                        tableNumbers.length
+
+                            ? tableNumbers
+                                .map(
+                                    table =>
+                                        `Table ${escapeHtml(
+                                            table.table_number
+                                        )}`
+                                )
+                                .join(", ")
+
+                            : "-";
+
+
+                    const status =
+                        reservation.status ||
+                        "unknown";
+
+
+                    return `
+
+                        <tr>
+
+                            <td>
+
+                                <strong>
+                                    ${formatTime(
+                                        reservation.start_at
+                                    )}
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="customer">
+
+                                    <strong>
+                                        ${escapeHtml(
+                                            customer.name ||
+                                            "Unknown"
+                                        )}
+                                    </strong>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            customer.email ||
+                                            ""
+                                        )}
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    reservation.party_size
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${tableText}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    customer.phone ||
+                                    "-"
+                                )}
+                            </td>
+
+
+                            <td>
+
+                                <span
+                                    class="badge ${escapeHtml(
+                                        status
+                                    )}"
+                                >
+                                    ${escapeHtml(
+                                        status
+                                            .charAt(0)
+                                            .toUpperCase()
+                                        +
+                                        status.slice(1)
+                                    )}
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+}
+
+
+/* ============================================================
+   RESERVATION STATISTICS
+   ============================================================ */
+
+function updateReservationStats() {
+
+    const reservationCount =
+        reservations.length;
+
+
+    const guestCount =
+        reservations.reduce(
+
+            (
+                total,
+                reservation
+            ) => {
+
+                if (
+                    reservation.status ===
+                    "cancelled"
+                ) {
+
+                    return total;
+
+                }
+
+
+                return total +
+                    Number(
+                        reservation.party_size ||
+                        0
+                    );
+
+            },
+
+            0
+
+        );
+
+
+    document
+        .getElementById(
+            "stat-reservations"
+        )
+        .textContent =
+            reservationCount;
+
+
+    document
+        .getElementById(
+            "stat-guests"
+        )
+        .textContent =
+            guestCount;
+
+
+    updateOccupiedStat();
+
+}
+
+
+/* ============================================================
+   UPDATE OCCUPIED STAT
+   ============================================================ */
+
+async function updateOccupiedStat() {
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/tables"
+            );
+
+
+        const tableList =
+            data.tables || [];
+
+
+        const occupied =
+            tableList.filter(
+                table =>
+                    table.occupied
+            ).length;
+
+
+        document
+            .getElementById(
+                "stat-tables"
+            )
+            .textContent =
+                `${occupied} / ${tableList.length}`;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Could not load table statistics:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   LOAD TABLES
+   ============================================================ */
+
+async function loadTables() {
+
+    const grid =
+        document.getElementById(
+            "table-grid"
+        );
+
+
+    grid.innerHTML = `
+
+        <div
+            class="loading-message"
+        >
+            Loading tables...
+        </div>
+
+    `;
+
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/tables"
+            );
+
+
+        tables =
+            data.tables || [];
+
+
+        renderTables();
+
+
+        const occupied =
+            tables.filter(
+                table =>
+                    table.occupied
+            ).length;
+
+
+        document
+            .getElementById(
+                "stat-tables"
+            )
+            .textContent =
+                `${occupied} / ${tables.length}`;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Table API error:",
+            error
+        );
+
+
+        grid.innerHTML = `
+
+            <div
+                class="error-message"
+            >
+                Could not load tables:
+                ${escapeHtml(
+                    error.message
+                )}
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* ============================================================
+   RENDER TABLES
+   ============================================================ */
+
+function renderTables() {
+
+    const grid =
+        document.getElementById(
+            "table-grid"
+        );
+
+
+    if (!tables.length) {
+
+        grid.innerHTML = `
+
+            <div class="empty-message">
+                No tables found.
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    grid.innerHTML =
+        tables
+            .map(
+                table => {
+
+                    const occupied =
+                        Boolean(
+                            table.occupied
+                        );
+
+
+                    const status =
+                        occupied
+                            ? "Occupied"
+                            : "Available";
+
+
+                    /*
+                     * Only use occupied_until.
+                     *
+                     * DO NOT display end_at.
+                     */
+
+                    let reservationInfo = "";
+
+
+                    if (
+                        occupied &&
+                        table.occupied_until
+                    ) {
+
+                        reservationInfo = `
+
+                            <div class="table-time">
+
+                                Until
+                                ${formatTime(
+                                    table.occupied_until
+                                )}
+
+                            </div>
+
+                        `;
+
+                    }
+
+
+                    return `
+
+                        <div class="
+                            restaurant-table
+                            ${occupied
+                                ? "occupied"
+                                : "available"}
+                        ">
+
+                            <div class="table-top">
+
+                                <span>
+                                    Table
+                                    ${escapeHtml(
+                                        table.table_number
+                                    )}
+                                </span>
+
+                                <span class="table-status">
+                                    ${status}
+                                </span>
+
+                            </div>
+
+
+                            <div class="table-capacity">
+
+                                ${escapeHtml(
+                                    table.capacity
+                                )}
+                                seats
+
+                            </div>
+
+
+                            <div class="table-restaurant">
+
+                                ${escapeHtml(
+                                    table.restaurant || ""
+                                )}
+
+                            </div>
+
+
+                            ${reservationInfo}
+
+                        </div>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+}
+/* ============================================================
+   CURRENT DATE
+   ============================================================ */
+
+function updateCurrentDate() {
+
+    const dateElement =
+        document.getElementById(
+            "current-date"
+        );
+
+
+    const today =
+        new Date();
+
+
+    dateElement.textContent =
+        today.toLocaleDateString(
+            "en-GB",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        );
+
+}
+
+
+/* ============================================================
+   EVENT LISTENERS
+   ============================================================ */
+
+document
+    .getElementById(
+        "reservation-date"
+    )
+    .addEventListener(
+        "change",
+        loadReservations
+    );
+
+
+document
+    .getElementById(
+        "reservation-status"
+    )
+    .addEventListener(
+        "change",
+        loadReservations
+    );
+
+
+document
+    .getElementById(
+        "occupancy-time"
+    )
+    .addEventListener(
+        "change",
+        loadTables
+    );
+
+
+/*
+ * If any reservation input changes after
+ * checking availability, the previous result
+ * is no longer trusted.
+ */
+
+[
+    "reservation-restaurant",
+    "new-reservation-date",
+    "new-reservation-time",
+    "reservation-party-size",
+    "reservation-duration"
+]
+.forEach(
+    id => {
+
+        document
+            .getElementById(id)
+            .addEventListener(
+                "change",
+                invalidateAvailability
+            );
+
+    }
+);
+
+
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function() {
+
+        /*
+         * Default reservation date.
+         */
+
+        document
+            .getElementById(
+                "reservation-date"
+            )
+            .value =
+                getTodayString();
+
+
+        document
+            .getElementById(
+                "new-reservation-date"
+            )
+            .value =
+                getTodayString();
+
+
+        /*
+         * Default occupancy date/time.
+         */
+
+        const now =
+            new Date();
+
+
+        now.setMinutes(
+            now.getMinutes()
+            -
+            now.getTimezoneOffset()
+        );
+
+
+        document
+            .getElementById(
+                "occupancy-time"
+            )
+            .value =
+                now
+                    .toISOString()
+                    .slice(
+                        0,
+                        16
+                    );
+
+
+        updateCurrentDate();
+
+
+        /*
+         * Load everything.
+         */
+
+        await Promise.allSettled([
+
+            loadRestaurants(),
+
+            loadReservations(),
+
+            loadTables()
+
+        ]);
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

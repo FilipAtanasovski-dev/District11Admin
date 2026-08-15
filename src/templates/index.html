@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Restaurant Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            background: #f4f5f7;
+            color: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .header h1 {
+            font-size: 34px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #777;
+            font-size: 16px;
+        }
+
+        .modes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .mode-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid #e1e1e1;
+            cursor: pointer;
+            transition: 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 25px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #f0f1f3;
+
+            font-size: 30px;
+        }
+
+        .mode-card h2 {
+            font-size: 23px;
+            margin-bottom: 10px;
+        }
+
+        .mode-card p {
+            color: #777;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #f1f1f1;
+            color: #666;
+            font-size: 12px;
+        }
+
+        @media (max-width: 650px) {
+
+            .container {
+                padding: 20px;
+            }
+
+            .modes {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Restaurant Management</h1>
+        <p>Select how you would like to continue</p>
+    </div>
+
+    <div class="modes">
+
+        <!-- EMPLOYEE -->
+
+        <a href="/employee" class="mode-card">
+
+            <div class="icon">
+                👤
+            </div>
+
+            <h2>Employee</h2>
+
+            <p>
+                View reservations and check
+                table occupancy.
+            </p>
+
+        </a>
+
+
+        <!-- ADMIN -->
+
+        <a href="/admin/login" class="mode-card">
+
+            <div class="icon">
+                🔐
+            </div>
+
+            <h2>Admin</h2>
+
+            <p>
+                Manage reservations, tables,
+                employees and newsletters.
+            </p>
+
+            <span class="admin-badge">
+                Password required
+            </span>
+
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
