@@ -834,3 +834,148 @@ td {
     }
 
 }
+/* ============================================================
+   FLOOR PLAN EDITOR
+   ============================================================ */
+
+.floor-plan-card {
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+
+.floor-plan-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fafafa;
+    flex-wrap: wrap;
+}
+
+
+.floor-plan-tools,
+.floor-plan-zoom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.floor-tool,
+.floor-plan-zoom button {
+    border: 1px solid #d5d5d5;
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+
+.floor-tool:hover,
+.floor-plan-zoom button:hover {
+    background: #f0f0f0;
+}
+
+
+.floor-tool.active {
+    background: #222;
+    color: #ffffff;
+    border-color: #222;
+}
+
+
+#floor-plan-zoom-level {
+    min-width: 55px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+.floor-plan-container {
+    position: relative;
+    width: 100%;
+    height: 650px;
+    overflow: hidden;
+    background-color: #f4f4f4;
+    cursor: default;
+}
+
+
+#floor-plan-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+.floor-plan-container.floor-pan {
+    cursor: grab;
+}
+
+
+.floor-plan-container.floor-pan:active {
+    cursor: grabbing;
+}
+
+
+.floor-plan-properties {
+    padding: 15px 20px;
+    border-top: 1px solid #e5e5e5;
+    background: #fafafa;
+}
+
+
+.floor-plan-properties-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+
+.floor-plan-properties-empty {
+    color: #777;
+    font-size: 14px;
+}
+
+
+.floor-property-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(100px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+
+.floor-property-grid label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+
+.floor-property-grid input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    border: 1px solid #d5d5d5;
+    border-radius: 5px;
+}
+
+
+@media (max-width: 800px) {
+
+    .floor-property-grid {
+        grid-template-columns:
+            repeat(2, minmax(100px, 1fr));
+    }
+
+}
