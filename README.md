@@ -142,7 +142,7 @@ run the start_server.bat batch file.
 The API documentation is then available at:
 
 ```text
-/docs
+*displayed_ip_adress_and_port*/docs
 ```
 
 ## Security
