@@ -2,7 +2,7 @@
 
 A full-stack restaurant website and management system developed for **District 11 Brunch Bar & Restaurant**, a restaurant in Belgrade, Serbia.
 
-The system is actively used in a real business setting to support online reservations and internal restaurant operations.
+The system is actively being developed and will soon be deployed in a real business setting to support online reservations and internal restaurant operations.
 
 ## Overview
 
